@@ -1,0 +1,81 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { searchFlights } from "../services/flight.service";
+import { createBooking } from "../services/booking.service";
+import FlightSearchForm from "../components/flights/FlightSearchForm";
+import FlightCard from "../components/flights/FlightCard";
+import Loader from "../components/common/Loader";
+
+export default function SearchFlights() {
+  const { user } = useAuth();
+  const nav = useNavigate();
+
+  const [form, setForm] = useState({ depIata: "MAA", arrIata: "DEL", date: "", limit: 20 });
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState("");
+
+  async function onSearch(e) {
+    e.preventDefault();
+    setErr("");
+    setLoading(true);
+    try {
+      const res = await searchFlights({
+        depIata: form.depIata.trim().toUpperCase(),
+        arrIata: form.arrIata.trim().toUpperCase(),
+        date: form.date || undefined,
+        limit: form.limit || 20,
+      });
+      setResults(res.data.results || []);
+    } catch (e) {
+      setErr(e?.response?.data?.message || "Search failed");
+      setResults([]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function onSelect(flight) {
+    if (!user) return nav("/login");
+
+    const payload = {
+      flight,
+      passengers: [{ fullName: user.name || "Passenger", age: 22, gender: "male" }],
+      seats: ["12A"],
+      cabinClass: "economy",
+      amount: 4999,
+    };
+
+    try {
+      const res = await createBooking(payload);
+      nav(`/checkout/${res.data.booking._id}`);
+    } catch (e) {
+      alert(e?.response?.data?.message || "Booking failed");
+    }
+  }
+
+  return (
+    <section className="max-w-6xl mx-auto px-4 py-10">
+      <div className="bg-white border rounded-2xl shadow p-6">
+        <h1 className="text-2xl font-bold text-slate-900">Search Flights</h1>
+        <p className="text-slate-600 mt-1">Use IATA codes like MAA → DEL</p>
+
+        <div className="mt-6">
+          <FlightSearchForm form={form} setForm={setForm} onSearch={onSearch} loading={loading} />
+        </div>
+
+        {err && <div className="mt-4 p-3 bg-red-50 text-red-700 rounded-lg">{err}</div>}
+
+        <div className="mt-6 space-y-4">
+          {loading && <Loader label="Fetching flights..." />}
+          {!loading && results.length === 0 && (
+            <div className="text-sm text-slate-600">No results. Try searching.</div>
+          )}
+          {!loading &&
+            results.map((f, idx) => <FlightCard key={idx} flight={f} onSelect={onSelect} />)}
+        </div>
+      </div>
+    </section>
+  );
+}
