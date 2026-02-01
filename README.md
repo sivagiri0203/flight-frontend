@@ -80,7 +80,7 @@ Copy code
 - Node.js >= 18
 - Backend running (local or deployed)
 
-Backend URL (your Render):
+Backend URL :
 `https://flight-backend-9io6.onrender.com`
 
 ---
