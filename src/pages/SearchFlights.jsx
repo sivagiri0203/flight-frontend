@@ -1,3 +1,6 @@
+import ComparePrice from "../components/flights/ComparePrice";
+import { buildCabinPrices } from "../utils/priceEngine";
+import { useMemo } from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -11,10 +14,17 @@ export default function SearchFlights() {
   const { user } = useAuth();
   const nav = useNavigate();
 
-  const [form, setForm] = useState({ depIata: "MAA", arrIata: "DEL", date: "", limit: 20 });
+  const [form, setForm] = useState({
+    depIata: "MAA",
+    arrIata: "DEL",
+    date: "",
+    limit: 20,
+  });
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
+  const [showCompare, setShowCompare] = useState(false);
+  const [cabin, setCabin] = useState("economy");
 
   async function onSearch(e) {
     e.preventDefault();
@@ -41,7 +51,9 @@ export default function SearchFlights() {
 
     const payload = {
       flight,
-      passengers: [{ fullName: user.name || "Passenger", age: 22, gender: "male" }],
+      passengers: [
+        { fullName: user.name || "Passenger", age: 22, gender: "male" },
+      ],
       seats: ["12A"],
       cabinClass: "economy",
       amount: 4999,
@@ -62,18 +74,54 @@ export default function SearchFlights() {
         <p className="text-slate-600 mt-1">Use IATA codes like MAA → DEL</p>
 
         <div className="mt-6">
-          <FlightSearchForm form={form} setForm={setForm} onSearch={onSearch} loading={loading} />
+          <FlightSearchForm
+            form={form}
+            setForm={setForm}
+            onSearch={onSearch}
+            loading={loading}
+          />
         </div>
 
-        {err && <div className="mt-4 p-3 bg-red-50 text-red-700 rounded-lg">{err}</div>}
+        {err && (
+          <div className="mt-4 p-3 bg-red-50 text-red-700 rounded-lg">
+            {err}
+          </div>
+        )}
 
         <div className="mt-6 space-y-4">
           {loading && <Loader label="Fetching flights..." />}
           {!loading && results.length === 0 && (
-            <div className="text-sm text-slate-600">No results. Try searching.</div>
+            <div className="text-sm text-slate-600">
+              No results. Try searching.
+            </div>
           )}
+          <div className="mt-5 flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setShowCompare((s) => !s)}
+              className="bg-slate-900 text-white px-4 py-2 rounded-xl font-semibold hover:bg-slate-800"
+            >
+              {showCompare ? "Hide Compare Price" : "Compare Price"}
+            </button>
+
+            <select
+              value={cabin}
+              onChange={(e) => setCabin(e.target.value)}
+              className="border border-slate-200 rounded-xl px-3 py-2 bg-white"
+            >
+              <option value="economy">Economy</option>
+              <option value="premium">Premium</option>
+              <option value="business">Business</option>
+              <option value="first">First</option>
+            </select>
+          </div>
+
+          {showCompare && <ComparePrice rows={compareRows} />}
+
           {!loading &&
-            results.map((f, idx) => <FlightCard key={idx} flight={f} onSelect={onSelect} />)}
+            results.map((f, idx) => (
+              <FlightCard key={idx} flight={f} onSelect={onSelect} />
+            ))}
         </div>
       </div>
     </section>
