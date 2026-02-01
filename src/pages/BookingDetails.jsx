@@ -153,7 +153,7 @@ export default function BookingDetails() {
     onClick={() => printItinerary(booking)}
     className="bg-slate-900 text-white px-4 py-2 rounded-xl font-semibold hover:bg-slate-800"
   >
-    Print Itinerary
+    Print Ticket
   </button>
 
   <button
