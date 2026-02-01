@@ -86,7 +86,7 @@ export default function SearchFlights() {
       return {
         airline: f?.airline?.name || "Unknown",
         flightNo: f?.flight?.iata || f?.flight?.number || "N/A",
-        price,
+        price, 
       };
     });
   }, [results, cabin, form.depIata, form.arrIata, form.date]);
@@ -146,6 +146,6 @@ export default function SearchFlights() {
           ))}
         </div>
       </div>
-    </section>
+    </section> 
   );
 }
