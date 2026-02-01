@@ -1,7 +1,6 @@
 import ComparePrice from "../components/flights/ComparePrice";
 import { buildCabinPrices } from "../utils/priceEngine";
-import { useMemo } from "react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { searchFlights } from "../services/flight.service";
@@ -20,9 +19,11 @@ export default function SearchFlights() {
     date: "",
     limit: 20,
   });
+
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
+
   const [showCompare, setShowCompare] = useState(false);
   const [cabin, setCabin] = useState("economy");
 
@@ -51,9 +52,7 @@ export default function SearchFlights() {
 
     const payload = {
       flight,
-      passengers: [
-        { fullName: user.name || "Passenger", age: 22, gender: "male" },
-      ],
+      passengers: [{ fullName: user.name || "Passenger", age: 22, gender: "male" }],
       seats: ["12A"],
       cabinClass: "economy",
       amount: 4999,
@@ -67,6 +66,31 @@ export default function SearchFlights() {
     }
   }
 
+  // ✅ FIX: define compareRows
+  const compareRows = useMemo(() => {
+    return (results || []).map((f) => {
+      const airlineIata = f?.airline?.iata || "DEFAULT";
+      const depIata = f?.departure?.iata || form.depIata;
+      const arrIata = f?.arrival?.iata || form.arrIata;
+
+      const pricing = buildCabinPrices({
+        airlineIata,
+        depIata,
+        arrIata,
+        date: form.date,
+      });
+
+      const selected = pricing.cabins.find((c) => c.class === cabin);
+      const price = selected?.price || pricing.minPrice;
+
+      return {
+        airline: f?.airline?.name || "Unknown",
+        flightNo: f?.flight?.iata || f?.flight?.number || "N/A",
+        price,
+      };
+    });
+  }, [results, cabin, form.depIata, form.arrIata, form.date]);
+
   return (
     <section className="max-w-6xl mx-auto px-4 py-10">
       <div className="bg-white border rounded-2xl shadow p-6">
@@ -74,54 +98,52 @@ export default function SearchFlights() {
         <p className="text-slate-600 mt-1">Use IATA codes like MAA → DEL</p>
 
         <div className="mt-6">
-          <FlightSearchForm
-            form={form}
-            setForm={setForm}
-            onSearch={onSearch}
-            loading={loading}
-          />
+          <FlightSearchForm form={form} setForm={setForm} onSearch={onSearch} loading={loading} />
         </div>
 
         {err && (
-          <div className="mt-4 p-3 bg-red-50 text-red-700 rounded-lg">
-            {err}
-          </div>
+          <div className="mt-4 p-3 bg-red-50 text-red-700 rounded-lg">{err}</div>
         )}
 
         <div className="mt-6 space-y-4">
           {loading && <Loader label="Fetching flights..." />}
+
           {!loading && results.length === 0 && (
-            <div className="text-sm text-slate-600">
-              No results. Try searching.
-            </div>
+            <div className="text-sm text-slate-600">No results. Try searching.</div>
           )}
-          <div className="mt-5 flex flex-wrap items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setShowCompare((s) => !s)}
-              className="bg-slate-900 text-white px-4 py-2 rounded-xl font-semibold hover:bg-slate-800"
-            >
-              {showCompare ? "Hide Compare Price" : "Compare Price"}
-            </button>
 
-            <select
-              value={cabin}
-              onChange={(e) => setCabin(e.target.value)}
-              className="border border-slate-200 rounded-xl px-3 py-2 bg-white"
-            >
-              <option value="economy">Economy</option>
-              <option value="premium">Premium</option>
-              <option value="business">Business</option>
-              <option value="first">First</option>
-            </select>
-          </div>
+          {/* ✅ Compare Button */}
+          {!loading && results.length > 0 && (
+            <>
+              <div className="mt-5 flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowCompare((s) => !s)}
+                  className="bg-slate-900 text-white px-4 py-2 rounded-xl font-semibold hover:bg-slate-800"
+                >
+                  {showCompare ? "Hide Compare Price" : "Compare Price"}
+                </button>
 
-          {showCompare && <ComparePrice rows={compareRows} />}
+                <select
+                  value={cabin}
+                  onChange={(e) => setCabin(e.target.value)}
+                  className="border border-slate-200 rounded-xl px-3 py-2 bg-white"
+                >
+                  <option value="economy">Economy</option>
+                  <option value="premium">Premium</option>
+                  <option value="business">Business</option>
+                  <option value="first">First</option>
+                </select>
+              </div>
 
-          {!loading &&
-            results.map((f, idx) => (
-              <FlightCard key={idx} flight={f} onSelect={onSelect} />
-            ))}
+              {showCompare && <ComparePrice rows={compareRows} />}
+            </>
+          )}
+
+          {/* Flight list */}
+          {!loading && results.map((f, idx) => (
+            <FlightCard key={idx} flight={f} onSelect={onSelect} />
+          ))}
         </div>
       </div>
     </section>
