@@ -86,7 +86,7 @@ export default function SearchFlights() {
       return {
         airline: f?.airline?.name || "Unknown",
         flightNo: f?.flight?.iata || f?.flight?.number || "N/A",
-        price, 
+        price,
       };
     });
   }, [results, cabin, form.depIata, form.arrIata, form.date]);
@@ -109,7 +109,7 @@ export default function SearchFlights() {
           {loading && <Loader label="Fetching flights..." />}
 
           {!loading && results.length === 0 && (
-            <div className="text-sm text-slate-600">No results. Try searching.</div>
+            <div className="text-sm text-slate-600">No results. keep Try searching.</div>
           )}
 
           {/* ✅ Compare Button */}
@@ -132,7 +132,7 @@ export default function SearchFlights() {
                   <option value="economy">Economy</option>
                   <option value="premium">Premium</option>
                   <option value="business">Business</option>
-                  <option value="first">First</option>
+                  <option value="first">First class</option>
                 </select>
               </div>
 
@@ -146,6 +146,6 @@ export default function SearchFlights() {
           ))}
         </div>
       </div>
-    </section> 
+    </section>
   );
 }
