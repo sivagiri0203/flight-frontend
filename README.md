@@ -1,5 +1,5 @@
 # How to login as admin
-admin mail-mastersivagiri@gmail.com,
+admin mail -mastersivagiri@gmail.com,
 admin password-8940203844.
 
 # ✈️ Flight Booking Frontend (React + Tailwind)
