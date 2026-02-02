@@ -1,4 +1,12 @@
-import api from "./api";
+import api from "./api"; // make sure this points to your axios instance
 
-export const searchFlights = (params) =>
-  api.get("/flights/search", { params }).then((r) => r.data);
+export function searchFlights({ depIata, arrIata, date, limit }) {
+  return api.get("/flights/search", {
+    params: {
+      depIata,     // ✅ correct key name
+      arrIata,
+      date,
+      limit,
+    },
+  });
+}
