@@ -44,7 +44,7 @@ export default function FlightSearchForm({ form, setForm, onSearch, loading }) {
     onChange={(e) =>
       setForm({ ...form, passengers: Number(e.target.value) })
     }
-    className="border rounded-xl px-3 py-2"
+    className="border rounded-xl px-4 py-3"
   />
 </div>
 
