@@ -9,13 +9,13 @@ import FlightSearchForm from "../components/flights/FlightSearchForm";
 import FlightCard from "../components/flights/FlightCard";
 import Loader from "../components/common/Loader";
 
-function normalizeDateToYYYYMMDD(dateStr) {
+function normalizeDate(dateStr) {
   if (!dateStr) return undefined;
 
-  // Already correct: 2026-02-22
+  // Already correct: YYYY-MM-DD
   if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
 
-  // Convert: 22-02-2026 -> 2026-02-22
+  // Convert: DD-MM-YYYY -> YYYY-MM-DD
   if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) {
     const [dd, mm, yyyy] = dateStr.split("-");
     return `${yyyy}-${mm}-${dd}`;
@@ -27,6 +27,9 @@ function normalizeDateToYYYYMMDD(dateStr) {
 
   return undefined;
 }
+
+
+
 
 
 export default function SearchFlights() {
@@ -56,7 +59,7 @@ export default function SearchFlights() {
       const res = await searchFlights({
         depIata: form.depIata.trim().toUpperCase(),
         arrIata: form.arrIata.trim().toUpperCase(),
-        date: form.date || undefined,
+        date: normalizeDate(form.date),
         limit: form.limit || 20,
       });
       setResults(res.data.results || []);
