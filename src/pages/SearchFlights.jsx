@@ -112,7 +112,7 @@ async function onSelect(flight) {
         airlineIata,
         depIata,
         arrIata,
-        date: normalizeDateToYYYYMMDD(form.date),
+        date: normalizeDate(form.date),
 
       });
 
