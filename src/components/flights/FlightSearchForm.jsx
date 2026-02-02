@@ -18,7 +18,7 @@ export default function FlightSearchForm({ form, setForm, onSearch, loading }) {
         placeholder="To (DEL)"
         value={form.arrIata}
         onChange={(e) => setForm({ ...form, arrIata: e.target.value })}
-        className="border rounded-xl px-3 py-2"
+        className="border rounded-xl px-3 py-4"
         required
       />
 
