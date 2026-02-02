@@ -9,6 +9,26 @@ import FlightSearchForm from "../components/flights/FlightSearchForm";
 import FlightCard from "../components/flights/FlightCard";
 import Loader from "../components/common/Loader";
 
+function normalizeDateToYYYYMMDD(dateStr) {
+  if (!dateStr) return undefined;
+
+  // Already correct: 2026-02-22
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
+
+  // Convert: 22-02-2026 -> 2026-02-22
+  if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) {
+    const [dd, mm, yyyy] = dateStr.split("-");
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  // fallback
+  const d = new Date(dateStr);
+  if (!isNaN(d.getTime())) return d.toISOString().slice(0, 10);
+
+  return undefined;
+}
+
+
 export default function SearchFlights() {
   const { user } = useAuth();
   const nav = useNavigate();
@@ -89,7 +109,8 @@ async function onSelect(flight) {
         airlineIata,
         depIata,
         arrIata,
-        date: form.date,
+       date: normalizeDateToYYYYMMDD(form.date),
+
       });
 
       const selected = pricing.cabins.find((c) => c.class === cabin);
