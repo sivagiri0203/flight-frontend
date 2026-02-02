@@ -31,17 +31,23 @@ export default function FlightSearchForm({ form, setForm, onSearch, loading }) {
       />
 
       {/* 👤 Passengers */}
-      <input
-        type="number"
-        min="1"
-        max="9"
-        value={form.passengers || 1}
-        onChange={(e) =>
-          setForm({ ...form, passengers: Number(e.target.value) })
-        }
-        className="border rounded-xl px-3 py-2"
-        placeholder="Passengers"
-      />
+     {/* 👤 Passengers */}
+<div className="flex flex-col">
+  <label className="text-sm font-semibold text-slate-700 mb-1">
+    Passengers
+  </label>
+  <input
+    type="number"
+    min="1"
+    max="9"
+    value={form.passengers || 1}
+    onChange={(e) =>
+      setForm({ ...form, passengers: Number(e.target.value) })
+    }
+    className="border rounded-xl px-3 py-2"
+  />
+</div>
+
 
       {/* Search */}
       <button
