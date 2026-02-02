@@ -18,6 +18,7 @@ export default function SearchFlights() {
     arrIata: "DEL",
     date: "",
     limit: 20,
+    passengers: 1,
   });
 
   const [results, setResults] = useState([]);
@@ -46,25 +47,36 @@ export default function SearchFlights() {
       setLoading(false);
     }
   }
+async function onSelect(flight) {
+  if (!user) return nav("/login");
 
-  async function onSelect(flight) {
-    if (!user) return nav("/login");
+  // create passengers array based on count
+  const passengersArray = Array.from(
+    { length: form.passengers },
+    (_, i) => ({
+      fullName: `${user.name || "Passenger"} ${i + 1}`,
+      age: 22,
+      gender: "male",
+    })
+  );
 
-    const payload = {
-      flight,
-      passengers: [{ fullName: user.name || "Passenger", age: 22, gender: "male" }],
-      seats: ["12A"],
-      cabinClass: "economy",
-      amount: 4999,
-    };
+  const payload = {
+    flight,
+    passengers: passengersArray,
+    seats: [],
+    cabinClass: cabin,
+    amount: 4999 * form.passengers, // simple price calc
+  };
 
-    try {
-      const res = await createBooking(payload);
-      nav(`/checkout/${res.data.booking._id}`);
-    } catch (e) {
-      alert(e?.response?.data?.message || "Booking failed");
-    }
+  try {
+    const res = await createBooking(payload);
+    nav(`/checkout/${res.data.booking._id}`);
+  } catch (e) {
+    alert(e?.response?.data?.message || "Booking failed");
   }
+}
+
+
 
   // ✅ FIX: define compareRows
   const compareRows = useMemo(() => {
